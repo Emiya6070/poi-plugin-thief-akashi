@@ -1,6 +1,6 @@
 {
   "name": "poi-plugin-thief-akashi",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "编队白嫖明石/野崎计时工具",
   "main": "index.js",
   "files": [

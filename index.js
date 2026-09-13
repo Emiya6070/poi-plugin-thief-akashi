@@ -13,7 +13,8 @@ let popup = null;
 exports.settingsClass = createSettingsView(React, settings);
 exports.handleClick = () => popup.open();
 exports.pluginDidLoad = () => {
-  settings.start(require('views/env').config);
+  // This config module is shared by poi 11 and 12.
+  settings.start(require('views/env-parts/config').config);
   runtime.start(window);
   popup = createPopup(runtime, settings, require('@electron/remote').BrowserWindow);
 };
