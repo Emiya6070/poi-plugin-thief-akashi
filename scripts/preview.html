@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:,">
+<title>泊地双计时 · 模拟数据预览</title>
+<style>
+body{margin:0;background:#f6f7f8;color:#24303b;font-family:system-ui,"Microsoft YaHei",sans-serif}
+body.dark{background:#20262d;color:#e7edf1}
+nav{padding:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-bottom:1px solid #8884}
+button{padding:6px 12px;cursor:pointer}
+nav span{font-size:12px}
+#app main{width:424px;box-sizing:border-box;line-height:1.25}
+</style>
+<nav aria-label="模拟数据控制">
+  <span>模拟数据预览</span>
+  <button onclick="scenario('waiting')">等待数据</button>
+  <button onclick="scenario('running')">计时中</button>
+  <button onclick="scenario('nearNosaki')">野崎临近</button>
+  <button onclick="scenario('nearAkashi')">明石临近</button>
+  <button onclick="scenario('ready')">到时</button>
+  <button onclick="scenario('nodes')">多舰后续节点</button>
+  <button onclick="scenario('warning')">回港无恢复</button>
+  <button onclick="scenario('second')">第二轮</button>
+  <button onclick="scenario('full')">已满</button>
+  <button onclick="scenario('blocked')">条件不足</button>
+  <button onclick="document.body.classList.toggle('dark')">切换深浅色</button>
+  <button onclick="openPopup()">弹出窗口</button>
+</nav>
+<div id="app"></div>
+<script>window.modules = {};</script>
+<script src="/react.js"></script><script src="/react-dom.js"></script>
+<script src="/timers.js"></script><script src="/settings.js"></script><script src="/view.js"></script><script src="/fixtures.js"></script>
+<script>
+const { Timers, snapshot } = modules['./timers'];
+const { game } = modules['./fixtures'];
+let timers = new Timers();
+const listeners = new Set();
+const runtime = { read: () => timers.read(Date.now()), subscribe: fn => {listeners.add(fn); return () => listeners.delete(fn);} };
+const settings = modules['./settings'].createSettings();
+settings.start({get: (_key, fallback) => JSON.parse(localStorage.getItem('preview-settings')) || fallback, set: (_key, value) => localStorage.setItem('preview-settings', JSON.stringify(value))});
+const View = modules['./view'].createView(React, runtime, settings);
+const Settings = modules['./settings'].createSettingsView(React, settings);
+let popup = null;
+let showPortal = () => {};
+function App() {
+  const [target, setTarget] = React.useState(null);
+  showPortal = setTarget;
+  return React.createElement(React.Fragment, null, React.createElement(Settings), React.createElement(View),
+    target && ReactDOM.createPortal(React.createElement(View), target));
+}
+ReactDOM.createRoot(document.getElementById('app')).render(React.createElement(App));
+function scenario(name) {
+  timers = new Timers();
+  if (name !== 'waiting') {
+    const data = game();
+    if (name === 'nodes') {
+      data.info.equips[11] = { api_id: 11, api_slotitem_id: 86 };
+      data.info.ships[1].api_slot[0] = 11;
+      data.info.ships[3].api_ndock_time = 10 * 13 * 60000 + 30000;
+    }
+    if (name === 'full') {
+      data.info.ships[1].api_cond = data.info.ships[3].api_cond = 54;
+      data.info.ships[2].api_nowhp = 40;
+    }
+    if (name === 'blocked') {
+      data.info.ships[1].api_nowhp = 20;
+      data.info.ships[2].api_fuel = 5;
+    }
+    const minutes = {running:11.5,nearNosaki:14.5,nearAkashi:19.5,ready:21,nodes:22,warning:21,blocked:21,second:16,full:30};
+    const now = Date.now();
+    timers.update('/kcsapi/api_port/port', {}, snapshot(data.info, data.constants), now - minutes[name] * 60000);
+    if (name === 'warning') timers.update('/kcsapi/api_port/port', {}, snapshot(data.info, data.constants), now);
+    if (name === 'second') {
+      data.info.ships[1].api_cond = data.info.ships[3].api_cond = 52;
+      timers.update('/kcsapi/api_port/port', {}, snapshot(data.info, data.constants), now - 60000);
+    }
+  }
+  listeners.forEach(fn => fn());
+}
+function openPopup() {
+  if (popup && !popup.closed) { popup.focus(); return; }
+  popup = window.open('about:blank', 'thief-akashi-preview', 'width=440,height=160');
+  popup.document.title = '泊地双计时 · 模拟弹窗';
+  popup.document.body.style.cssText = 'margin:0;background:#20262d;color:#e7edf1';
+  const target = popup.document.createElement('div');
+  popup.document.body.appendChild(target);
+  showPortal(target);
+  popup.addEventListener('beforeunload', () => showPortal(null));
+}
+scenario('running');
+</script>
+</html>

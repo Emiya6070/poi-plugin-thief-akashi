@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'">
+<title>明石小偷</title>
+<style>
+body{margin:0;background:#20262d;font-family:system-ui,"Microsoft YaHei",sans-serif}
+main{display:grid;gap:8px;padding:12px;font-weight:600;line-height:1.25;font-variant-numeric:tabular-nums}
+.timer{display:flex;gap:12px;align-items:baseline;white-space:nowrap}
+.value{display:flex;gap:8px;align-items:baseline}
+.flagship{color:#24b47e}.not-flagship{color:#dca923}
+.ready{color:#24b47e}.soon,.warning{color:#ef6464}.idle{color:#9ba4ad}
+</style>
+<main id="timers" style="font-size:28px">
+  <div class="timer not-flagship" role="timer" aria-label="明石计时"><span>明石</span><span class="value"><span>--:--</span><span class="idle">/20:00</span></span></div>
+  <div class="timer not-flagship" role="timer" aria-label="野崎计时"><span>野崎</span><span class="value"><span>--:--</span><span class="idle">/15:00</span></span></div>
+</main>
+</html>

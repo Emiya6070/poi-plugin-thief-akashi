@@ -1,0 +1,40 @@
+{
+  "name": "poi-plugin-thief-akashi",
+  "version": "0.3.2",
+  "description": "编队白嫖明石/野崎计时工具",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "lib",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "third-party"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "check": "node --check index.js && node --check lib/timers.js && node --check lib/runtime.js && node --check lib/view.js && node --check lib/settings.js && node --check lib/popup.js && node --check lib/popup-preload.js",
+    "preview": "node scripts/preview.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Emiya6070/poi-plugin-thief-akashi.git"
+  },
+  "author": "Emiya6070",
+  "license": "MIT",
+  "keywords": [
+    "poi-plugin",
+    "kancolle",
+    "akashi",
+    "nosaki"
+  ],
+  "devDependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "poiPlugin": {
+    "title": "明石小偷",
+    "description": "编队白嫖明石/野崎计时工具",
+    "icon": "fa/clock-o",
+    "priority": 50
+  }
+}
